@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@scarf/scarf'
+  - argon2
+  - bcrypt
+  - msgpackr-extract
+  - unrs-resolver
