@@ -39,6 +39,8 @@ lerna-debug.log*
 # dotenv environment variable files
 .env*
 !.env.example
+!deploy/.env.staging
+!deploy/.env.prod
 
 # temp directory
 .temp
