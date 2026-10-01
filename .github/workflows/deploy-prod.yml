@@ -36,7 +36,7 @@ jobs:
       - name: Prepare deployment folders
         run: |
           ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "install -d -m 0755 '$DEPLOY_ROOT/server' '$DEPLOY_ROOT/logs' '$DEPLOY_ROOT/data/postgres' '$DEPLOY_ROOT/data/redis' && (docker network inspect nexera-group-prod-network >/dev/null 2>&1 || docker network create nexera-group-prod-network)"
+            "install -d -m 0755 '$DEPLOY_ROOT/server' '$DEPLOY_ROOT/logs' '$DEPLOY_ROOT/data' && (docker network inspect nexera-group-prod-network >/dev/null 2>&1 || docker network create nexera-group-prod-network)"
 
       - name: Synchronize server application
         run: |
