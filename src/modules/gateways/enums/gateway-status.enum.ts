@@ -1,0 +1,7 @@
+export enum GatewayStatus {
+  HEALTHY = 'HEALTHY',
+  DEGRADED = 'DEGRADED',
+  UNHEALTHY = 'UNHEALTHY',
+  UNKNOWN = 'UNKNOWN',
+  DISABLED = 'DISABLED',
+}

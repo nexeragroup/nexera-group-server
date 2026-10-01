@@ -1,0 +1,11 @@
+.git
+.github
+.codex
+.vscode
+dist
+node_modules
+coverage
+deploy
+.env*
+*.log
+keys

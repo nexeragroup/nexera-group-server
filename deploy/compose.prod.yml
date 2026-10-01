@@ -1,0 +1,97 @@
+name: ${COMPOSE_PROJECT_NAME}
+
+services:
+  database:
+    image: postgres:17-alpine
+    container_name: nexera-group-postgres-prod
+    restart: unless-stopped
+    env_file:
+      - ${SERVER_RUNTIME_ENV_FILE}
+    volumes:
+      - ${SERVER_POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - nexera-group
+
+  redis:
+    image: redis:7-alpine
+    container_name: nexera-group-redis-prod
+    restart: unless-stopped
+    env_file:
+      - ${SERVER_RUNTIME_ENV_FILE}
+    command:
+      - sh
+      - -ec
+      - |
+        if [ -n "$$REDIS_PASSWORD" ]; then
+          exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"
+        fi
+        exec redis-server --appendonly yes
+    volumes:
+      - ${SERVER_REDIS_DATA_PATH}:/data
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD-SHELL", "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-cli --no-auth-warning -a \"$$REDIS_PASSWORD\" ping | grep -q PONG; else redis-cli ping | grep -q PONG; fi"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - nexera-group
+
+  server:
+    container_name: ${SERVER_CONTAINER_NAME}
+    image: ${SERVER_IMAGE}
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    env_file:
+      - ${SERVER_RUNTIME_ENV_FILE}
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: ${SERVER_CONTAINER_PORT}
+      APP_ROLE: all
+      TRUST_PROXY_HOPS: 1
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_SSL: "false"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_TLS: "false"
+    ports:
+      - 127.0.0.1:${SERVER_HOST_PORT}:${SERVER_CONTAINER_PORT}
+    restart: unless-stopped
+    init: true
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('node:http').get('http://127.0.0.1:3000/api/v1/health/live',(response)=>{response.resume();process.exit(response.statusCode===200?0:1)}).on('error',()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - nexera-group
+
+networks:
+  nexera-group:
+    name: ${SERVER_NETWORK_NAME}
+    external: true
