@@ -67,7 +67,6 @@ export class TechnologiesService {
       websiteUrl: dto.websiteUrl?.trim() || null,
       logoUrl: dto.logoUrl?.trim() || null,
       active: dto.active ?? true,
-      sortOrder: dto.sortOrder ?? 0,
     });
 
     return this.technologiesRepository.save(technology);
@@ -110,9 +109,8 @@ export class TechnologiesService {
     }
 
     builder
-      .orderBy('technology.category', 'ASC')
-      .addOrderBy('technology.sortOrder', 'ASC')
-      .addOrderBy('technology.name', 'ASC')
+      .orderBy('technology.name', 'ASC')
+      .addOrderBy('technology.id', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -170,9 +168,8 @@ export class TechnologiesService {
     }
 
     builder
-      .orderBy('technology.category', 'ASC')
-      .addOrderBy('technology.sortOrder', 'ASC')
-      .addOrderBy('technology.name', 'ASC')
+      .orderBy('technology.name', 'ASC')
+      .addOrderBy('technology.id', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -255,10 +252,6 @@ export class TechnologiesService {
 
     if (dto.active !== undefined) {
       technology.active = dto.active;
-    }
-
-    if (dto.sortOrder !== undefined) {
-      technology.sortOrder = dto.sortOrder;
     }
 
     return this.technologiesRepository.save(technology);

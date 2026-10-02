@@ -49,6 +49,11 @@ jobs:
             -e "ssh -p $DEPLOY_PORT" \
             ./ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_ROOT/server/"
 
+      - name: Verify server runtime environment
+        run: |
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "test -f '$DEPLOY_ROOT/server/.env.staging' || { echo 'Missing server runtime environment: $DEPLOY_ROOT/server/.env.staging'; exit 1; }"
+
       - name: Build and run server service
         run: |
           ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \

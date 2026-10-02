@@ -49,6 +49,11 @@ jobs:
             -e "ssh -p $DEPLOY_PORT" \
             ./ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_ROOT/server/"
 
+      - name: Verify server runtime environment
+        run: |
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "test -f '$DEPLOY_ROOT/server/.env.prod' || { echo 'Missing server runtime environment: $DEPLOY_ROOT/server/.env.prod'; exit 1; }"
+
       - name: Build and run server service
         run: |
           ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
@@ -57,7 +62,7 @@ jobs:
       - name: Verify server health
         run: |
           ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "for attempt in \$(seq 1 12); do curl --fail --silent --show-error http://127.0.0.1:10141/api/v1/health/live && exit 0; sleep 5; done; exit 1"
+            "for attempt in \$(seq 1 12); do curl --fail --silent --show-error --resolve api.nexeragroup.rw:443:127.0.0.1 https://api.nexeragroup.rw/api/v1/health/live && exit 0; sleep 5; done; docker logs --tail=100 nexera-group-server-prod; exit 1"
 
       - name: Seed the default administrator
         run: |

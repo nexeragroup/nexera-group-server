@@ -45,7 +45,10 @@ async function checkScenario(admin, upgrade) {
       );
     }
 
-    assert.equal((await source.runMigrations()).length, upgrade ? 1 : 3);
+    assert.equal(
+      (await source.runMigrations()).length,
+      upgrade ? source.migrations.length - 2 : source.migrations.length,
+    );
     assert.equal((await source.runMigrations()).length, 0);
     assert.equal(source.entityMetadatas.length, 16);
 

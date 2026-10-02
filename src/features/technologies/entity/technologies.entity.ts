@@ -97,15 +97,6 @@ export class TechnologiesEntity {
   active!: boolean;
 
   /**
-   * Used when presenting technologies in lists.
-   */
-  @Column({
-    type: 'integer',
-    default: 0,
-  })
-  sortOrder!: number;
-
-  /**
    * Projects using this technology.
    */
   @ManyToMany(() => ProjectsEntity, (project) => project.technologies)

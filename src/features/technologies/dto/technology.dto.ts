@@ -79,14 +79,6 @@ export class CreateTechnologyDto {
   @IsOptional()
   @IsBoolean()
   active?: boolean;
-
-  @ApiPropertyOptional({
-    default: 0,
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  sortOrder?: number;
 }
 
 export class UpdateTechnologyDto extends PartialType(CreateTechnologyDto) {}
